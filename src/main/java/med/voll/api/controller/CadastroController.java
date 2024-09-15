@@ -25,13 +25,19 @@ public class CadastroController {
 
 	@Operation(description = "Cadastra usuário e criptografa a senha")
     @PostMapping
-    public ResponseEntity<Usuario> cadastrarUsuario(@RequestBody DadosAutenticacao dados) {
+    public ResponseEntity<String> cadastrarUsuario(@RequestBody DadosAutenticacao dados) {
+
+        // Verifica se o usuário já existe
+        if (usuarioRepository.existsByLogin(dados.login())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário já cadastrado!");
+        }
+
         // Criptografa a senha antes de salvar
         Usuario novoUsuario = new Usuario();
         novoUsuario.setLogin(dados.login());
         novoUsuario.setSenha(passwordEncoder.encode(dados.senha()));
         
         novoUsuario = usuarioRepository.save(novoUsuario);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Usuário cadastrado com sucesso!");
     }
 }
